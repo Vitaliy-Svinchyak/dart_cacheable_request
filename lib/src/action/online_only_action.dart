@@ -1,8 +1,8 @@
-import 'package:cacheable_request/src/action/action.dart';
-import 'package:cacheable_request/src/action/response.dart';
+import 'package:cacheable_request/src/action/abstract_action.dart';
+import 'package:cacheable_request/src/action/action_response.dart';
 import 'package:flutter/foundation.dart';
 
-abstract class OnlineOnlyAction<T extends ActionResponse> extends Action<T> {
+abstract class OnlineOnlyAction<T extends ActionResponse> extends AbstractAction<T> {
   OnlineOnlyAction();
 
   @protected

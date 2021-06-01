@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cacheable_request/cacheable_request.dart';
-import 'package:cacheable_request/src/action/response.dart';
+import 'package:cacheable_request/src/action/action_response.dart';
+import 'package:cacheable_request/src/cacheable_request_config.dart';
 import 'package:cacheable_request/src/error_message.dart';
-import 'package:cacheable_request/src/offline_detector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,8 +12,6 @@ typedef ResponseBuilder<T extends ActionResponse> = T Function(Map<String, dynam
 typedef OnUnauthorisedCallback = void Function();
 
 class HttpProxy {
-  static final offlineDetector = OfflineDetector();
-
   const HttpProxy();
 
   Future<T> post<T extends ActionResponse>({
@@ -24,7 +21,7 @@ class HttpProxy {
     bool auth = true,
     OnUnauthorisedCallback onUnauthorised,
   }) async {
-    return CacheConfig.httpClient
+    return CacheableRequestConfig.httpClient
         .post(url, headers: await this._getHeaders(auth), body: body)
         .then((r) => this._parseResponse<T>(r, builder, onUnauthorised))
         .catchError((dynamic e, StackTrace s) => this._onError<T>(e, s, builder));
@@ -37,7 +34,7 @@ class HttpProxy {
     bool auth = true,
     OnUnauthorisedCallback onUnauthorised,
   }) async {
-    return CacheConfig.httpClient
+    return CacheableRequestConfig.httpClient
         .put(url, headers: await this._getHeaders(auth), body: body)
         .then((r) => this._parseResponse<T>(r, builder, onUnauthorised))
         .catchError((dynamic e, StackTrace s) => this._onError<T>(e, s, builder));
@@ -49,7 +46,7 @@ class HttpProxy {
     bool auth = true,
     OnUnauthorisedCallback onUnauthorised,
   }) async {
-    return CacheConfig.httpClient
+    return CacheableRequestConfig.httpClient
         .get(url, headers: await this._getHeaders(auth))
         .then((r) => this._parseResponse<T>(r, builder, onUnauthorised))
         .catchError((dynamic e, StackTrace s) => this._onError<T>(e, s, builder));

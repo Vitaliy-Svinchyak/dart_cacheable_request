@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+typedef AsyncCallback = Future<void> Function();
 
 class LifecycleEventHandler extends WidgetsBindingObserver {
   final Map<AppLifecycleState, List<AsyncCallback>> _callbacks = {

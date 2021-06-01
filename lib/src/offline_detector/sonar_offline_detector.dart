@@ -1,20 +1,28 @@
 import 'dart:async';
 
-import 'package:cacheable_request/src/cache_config.dart';
+import 'package:cacheable_request/src/offline_detector/abstract_offline_detector.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter/foundation.dart';
 
 typedef ConnectionChangeCallback = void Function(bool result);
 typedef Sonar = Future<bool> Function();
 
-class OfflineDetector {
-  static const Duration _pingFrequency = Duration(seconds: 2);
+class SonarOfflineDetector implements AbstractOfflineDetector {
+  final Duration pingFrequency;
+  final Sonar sonar;
+  final int maxFailStreak;
 
   final List<Function> _listeners = [];
 
   bool _currentStatus;
-  int failsStreak = 0;
+  int _failsStreak = 0;
 
-  OfflineDetector() {
+  SonarOfflineDetector({
+    @required this.sonar,
+    this.pingFrequency = const Duration(seconds: 10),
+    this.maxFailStreak = 2,
+  }) {
+    assert(this.sonar != null, 'Sonar should be passed');
     this._trackConnectionChange();
   }
 
@@ -23,7 +31,7 @@ class OfflineDetector {
   }
 
   Future<bool> isOffline() async {
-    return !await isOnline();
+    return !await this.isOnline();
   }
 
   Future<void> subscribeConnectionChanges(ConnectionChangeCallback callback) async {
@@ -35,38 +43,40 @@ class OfflineDetector {
   }
 
   Future<void> _trackConnectionChange() async {
-    Timer.periodic(_pingFrequency, (timer) {
-      this._ping().then((newStatus) => this._setStatus(newStatus)).catchError((e) => this._setStatus(false));
+    Timer.periodic(this.pingFrequency, (timer) {
+      this._ping().then(this._setStatus).catchError((e) => this._setStatus(false));
     });
   }
 
   Future<bool> _ping() async {
-    bool result;
+    bool pingResult;
     final bool isConnectedToInternet = await this._connectedToInternet();
 
     if (isConnectedToInternet) {
-      result = await CacheConfig.sonar();
+      pingResult = await this.sonar();
     } else {
-      result = isConnectedToInternet;
+      pingResult = false;
     }
 
-    if (result) {
-      this.failsStreak = 0;
+    if (pingResult) {
+      this._failsStreak = 0;
     } else {
-      this.failsStreak++;
+      this._failsStreak++;
     }
 
-    return result || this.failsStreak <= 2;
+    return pingResult || this._failsStreak <= this.maxFailStreak;
   }
 
   void _setStatus(bool newStatus) {
-    if (this._currentStatus != newStatus) {
-      for (final Function callback in this._listeners) {
-        callback(newStatus);
-      }
+    if (this._currentStatus == newStatus) {
+      return;
     }
 
     this._currentStatus = newStatus;
+
+    for (final ConnectionChangeCallback callback in this._listeners) {
+      callback(newStatus);
+    }
   }
 
   Future<bool> _connectedToInternet() async {

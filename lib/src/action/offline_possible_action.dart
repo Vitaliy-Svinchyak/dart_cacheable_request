@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:cacheable_request/src/action/action.dart';
-import 'package:cacheable_request/src/action/response.dart';
+import 'package:cacheable_request/src/action/abstract_action.dart';
+import 'package:cacheable_request/src/action/action_response.dart';
 import 'package:cacheable_request/src/action/serializable_request.dart';
-import 'package:cacheable_request/src/cache_config.dart';
+import 'package:cacheable_request/src/cacheable_request_config.dart';
 import 'package:cacheable_request/src/error_message.dart';
 import 'package:cacheable_request/src/lifecycle_event_handler.dart';
 import 'package:flutter/foundation.dart';
 
-abstract class OfflinePossibleAction<T extends ActionResponse> extends Action<T> {
+abstract class OfflinePossibleAction<T extends ActionResponse> extends AbstractAction<T> {
   static final _lifecycleEventHandler = LifecycleEventHandler();
 
   int _maxRetries;
@@ -94,7 +94,8 @@ abstract class OfflinePossibleAction<T extends ActionResponse> extends Action<T>
     }
 
     final String actionName = this.actionName;
-    final List<SerializableRequest> savedRequests = await CacheConfig.saveAdapter.getSavedRequestsByName(actionName);
+    final List<SerializableRequest> savedRequests =
+        await CacheableRequestConfig.saveAdapter.getSavedRequestsByName(actionName);
 
     for (final SerializableRequest request in savedRequests) {
       final OfflinePossibleAction action = OfflinePossibleAction.fromSerialized(request);
@@ -145,6 +146,6 @@ abstract class OfflinePossibleAction<T extends ActionResponse> extends Action<T>
   }
 
   Future<bool> save() {
-    return CacheConfig.saveAdapter.saveRequest(this);
+    return CacheableRequestConfig.saveAdapter.saveRequest(this);
   }
 }
