@@ -5,19 +5,17 @@ import 'package:cacheable_request/src/sync/actions_synchronizer.dart';
 import 'package:http/http.dart';
 
 class CacheableRequestConfig {
-  static SaveAdapter saveAdapter;
-  static Client httpClient;
-  static AbstractOfflineDetector offlineDetector;
+  static late SaveAdapter saveAdapter;
+  static late Client httpClient;
+  static late AbstractOfflineDetector offlineDetector;
 
-  static ActionsSynchronizer _actionsSynchronizer;
+  static late ActionsSynchronizer _actionsSynchronizer;
 
   const CacheableRequestConfig();
 
-  CacheableRequestConfig.standard({
-    Sonar sonar,
-  }) {
+  CacheableRequestConfig.standard(Sonar sonar) {
     httpClient = Client();
-    offlineDetector = SonarOfflineDetector(sonar: sonar);
+    offlineDetector = SonarOfflineDetector(sonar);
     _actionsSynchronizer = ActionsSynchronizer();
   }
 
@@ -35,7 +33,7 @@ class CacheableRequestConfig {
 
   void configureActionsSynchronizer({
     FailedSyncBehaviour failedSyncBehaviour = FailedSyncBehaviour.throwAndForget,
-    FailedSyncCallback onFail,
+    FailedSyncCallback? onFail,
   }) {
     _actionsSynchronizer = ActionsSynchronizer(failedSyncBehaviour: failedSyncBehaviour, onFail: onFail);
   }

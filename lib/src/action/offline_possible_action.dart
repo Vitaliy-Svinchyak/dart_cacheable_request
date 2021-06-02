@@ -4,24 +4,24 @@ import 'package:cacheable_request/src/action/abstract_action.dart';
 import 'package:cacheable_request/src/action/action_response.dart';
 import 'package:cacheable_request/src/action/serializable_request.dart';
 import 'package:cacheable_request/src/cacheable_request_config.dart';
-import 'package:cacheable_request/src/error_message.dart';
+import 'package:cacheable_request/src/error/online_only_error.dart';
 import 'package:cacheable_request/src/lifecycle_event_handler.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class OfflinePossibleAction<T extends ActionResponse> extends AbstractAction<T> {
   static final _lifecycleEventHandler = LifecycleEventHandler();
 
-  int _maxRetries;
+  late int _maxRetries;
   Map<String, dynamic> metaInfo = {};
 
-  int get currentRetries => this.metaInfo['retries'] as int ?? 0;
+  int get currentRetries => this.metaInfo['retries'] as int;
 
   set currentRetries(int value) {
     this.metaInfo['retries'] = value;
   }
 
   OfflinePossibleAction({int maxRetries = 0}) {
-    this._maxRetries = (maxRetries ?? 0) > 0 ? maxRetries : null;
+    this._maxRetries = maxRetries;
     this.createdAt = DateTime.now();
   }
 
@@ -34,7 +34,7 @@ abstract class OfflinePossibleAction<T extends ActionResponse> extends AbstractA
   Future<bool> undo();
 
   @protected
-  String getUniqueIdentifier() {
+  String? getUniqueIdentifier() {
     return null;
   }
 
@@ -86,7 +86,7 @@ abstract class OfflinePossibleAction<T extends ActionResponse> extends AbstractA
     this.body = this.getBodyJson();
     this.metadata = json.encode(this.metaInfo);
     this.maxRetries = this._maxRetries;
-    final String uniqueIdentifier = this.getUniqueIdentifier();
+    final String? uniqueIdentifier = this.getUniqueIdentifier();
 
     if (uniqueIdentifier == null) {
       await this.save();
@@ -123,10 +123,10 @@ abstract class OfflinePossibleAction<T extends ActionResponse> extends AbstractA
   }
 
   Future<bool> _serializeIfOfflineOrCanRetry() async {
-    final bool messageSaysOffline = this.response.error == ErrorMessage.onlineOnly;
+    final bool messageSaysOffline = this.response?.error is OnlineOnlyError;
     final bool isOnline = !messageSaysOffline;
 
-    final bool canRetry = this._maxRetries != null && this.currentRetries <= this._maxRetries;
+    final bool canRetry = this.currentRetries <= this._maxRetries;
     if (canRetry && isOnline) {
       this.currentRetries++;
     }

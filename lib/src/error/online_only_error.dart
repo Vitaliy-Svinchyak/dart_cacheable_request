@@ -1,0 +1,3 @@
+class OnlineOnlyError extends Error {
+
+}

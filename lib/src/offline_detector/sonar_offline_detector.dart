@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cacheable_request/src/offline_detector/abstract_offline_detector.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:flutter/foundation.dart';
 
 typedef ConnectionChangeCallback = void Function(bool result);
 typedef Sonar = Future<bool> Function();
@@ -12,17 +11,16 @@ class SonarOfflineDetector implements AbstractOfflineDetector {
   final Sonar sonar;
   final int maxFailStreak;
 
-  final List<Function> _listeners = [];
+  final List<ConnectionChangeCallback> _listeners = [];
 
-  bool _currentStatus;
+  bool? _currentStatus;
   int _failsStreak = 0;
 
-  SonarOfflineDetector({
-    @required this.sonar,
+  SonarOfflineDetector(
+    this.sonar, {
     this.pingFrequency = const Duration(seconds: 10),
     this.maxFailStreak = 2,
   }) {
-    assert(this.sonar != null, 'Sonar should be passed');
     this._trackConnectionChange();
   }
 
@@ -38,7 +36,7 @@ class SonarOfflineDetector implements AbstractOfflineDetector {
     this._listeners.add(callback);
 
     if (this._currentStatus != null) {
-      callback(this._currentStatus);
+      callback(this._currentStatus!);
     }
   }
 

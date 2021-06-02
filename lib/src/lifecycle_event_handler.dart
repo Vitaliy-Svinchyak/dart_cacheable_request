@@ -19,11 +19,11 @@ class LifecycleEventHandler extends WidgetsBindingObserver {
   }
 
   void removeOnKillCallback(AsyncCallback callback) {
-    this._callbacks[AppLifecycleState.detached].remove(callback);
+    this._callbacks[AppLifecycleState.detached]!.remove(callback);
   }
 
   Future<void> _notifyListeners(AppLifecycleState state) async {
-    for (final AsyncCallback callback in this._callbacks[state]) {
+    for (final AsyncCallback callback in this._callbacks[state]!) {
       await callback();
     }
   }
@@ -49,6 +49,6 @@ class LifecycleEventHandler extends WidgetsBindingObserver {
       this._callbacks[state] = [];
     }
 
-    this._callbacks[state].add(callback);
+    this._callbacks[state]!.add(callback);
   }
 }

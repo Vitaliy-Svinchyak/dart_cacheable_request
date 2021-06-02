@@ -9,7 +9,7 @@ abstract class AbstractAction<T extends ActionResponse> extends SerializableRequ
   Map<String, dynamic> bodyToSend = {};
 
   @protected
-  T response;
+  late T response;
 
   HttpProxy httpProxy = HttpProxy();
 
@@ -17,7 +17,7 @@ abstract class AbstractAction<T extends ActionResponse> extends SerializableRequ
 
   Future<bool> perform();
 
-  T getResponse() {
+  T? getResponse() {
     return this.response;
   }
 

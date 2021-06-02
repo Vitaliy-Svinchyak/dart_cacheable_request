@@ -14,10 +14,10 @@ enum FailedSyncBehaviour {
 typedef FailedSyncCallback = void Function(OfflinePossibleAction action, Object e, StackTrace stackTrace);
 
 class ActionsSynchronizer {
-  AbstractOfflineDetector _offlineDetector;
+  late AbstractOfflineDetector _offlineDetector;
 
   final FailedSyncBehaviour failedSyncBehaviour;
-  final FailedSyncCallback onFail;
+  final FailedSyncCallback? onFail;
 
   ActionsSynchronizer({
     this.failedSyncBehaviour = FailedSyncBehaviour.throwAndForget,
@@ -54,7 +54,7 @@ class ActionsSynchronizer {
         if (performed) {
           await CacheableRequestConfig.saveAdapter.deleteRequest(request);
         } else {
-          final ActionResponse response = action.getResponse();
+          final ActionResponse response = action.getResponse()!;
           await this._onSyncError(action, response.error, StackTrace.current);
         }
       } catch (e, stackTrace) {
@@ -83,13 +83,12 @@ class ActionsSynchronizer {
         await action.undo();
         await CacheableRequestConfig.saveAdapter.deleteRequest(action);
         throw e;
-        break;
       case FailedSyncBehaviour.forget:
         await action.undo();
         await CacheableRequestConfig.saveAdapter.deleteRequest(action);
         break;
       case FailedSyncBehaviour.callback:
-        this.onFail(action, e, stackTrace);
+        this.onFail!(action, e, stackTrace);
         break;
     }
   }

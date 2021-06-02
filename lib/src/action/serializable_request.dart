@@ -1,10 +1,10 @@
 class SerializableRequest {
-  int id;
-  String actionName;
-  String body;
-  String metadata;
-  int maxRetries;
-  DateTime createdAt;
+  late int id;
+  late String actionName;
+  late String body;
+  late String metadata;
+  late int maxRetries;
+  late DateTime createdAt;
 
   SerializableRequest();
 
