@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cacheable_request/src/action/action_response.dart';
-import 'package:cacheable_request/src/cacheable_request_config.dart';
-import 'package:cacheable_request/src/error_message.dart';
+import 'package:cacheable_request/src/config.dart';
+import 'package:cacheable_request/src/exception/connection_exception.dart';
 import 'package:http/http.dart' as http;
 
 typedef ResponseBuilder<T extends ActionResponse> = T Function(Map<String, dynamic> json);
@@ -51,7 +51,7 @@ class HttpProxy {
   }
 
   Future<T> _onError<T extends ActionResponse>(dynamic error, StackTrace stackTrace, ResponseBuilder<T> builder) async {
-    return builder({'error': ErrorMessage.onlineOnly});
+    return builder({'error': ConnectionException()});
   }
 
   T _parseResponse<T extends ActionResponse>(

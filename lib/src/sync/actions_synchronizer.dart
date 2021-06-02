@@ -2,7 +2,7 @@ import 'package:cacheable_request/cacheable_request.dart';
 import 'package:cacheable_request/src/action/action_response.dart';
 import 'package:cacheable_request/src/action/offline_possible_action.dart';
 import 'package:cacheable_request/src/action/serializable_request.dart';
-import 'package:cacheable_request/src/cacheable_request_config.dart';
+import 'package:cacheable_request/src/config.dart';
 import 'package:cacheable_request/src/offline_detector/abstract_offline_detector.dart';
 
 enum FailedSyncBehaviour {
@@ -27,7 +27,7 @@ class ActionsSynchronizer {
   }
 
   Future<void> listen() async {
-    await _offlineDetector.subscribeConnectionChanges(this._onConnectionChange);
+    _offlineDetector.subscribeConnectionChanges(this._onConnectionChange);
 
     final bool isOnline = await _offlineDetector.isOnline();
 
@@ -44,6 +44,9 @@ class ActionsSynchronizer {
 
   Future<void> _performActions() async {
     final List<SerializableRequest> savedRequests = await this._pullActions();
+    if (savedRequests.isNotEmpty) {
+      CacheableRequestConfig.logger.d('[${this.runtimeType}] Performing cached requests. (${savedRequests.length} requests)');
+    }
 
     for (final SerializableRequest request in savedRequests) {
       final OfflinePossibleAction action = OfflinePossibleAction.fromSerialized(request);
@@ -52,10 +55,14 @@ class ActionsSynchronizer {
         final bool performed = await action.performRemotelyIfPossible();
 
         if (performed) {
+          CacheableRequestConfig.logger.d('[${this.runtimeType}] Performed cached request.');
+
           await CacheableRequestConfig.saveAdapter.deleteRequest(request);
         } else {
+          CacheableRequestConfig.logger.d('[${this.runtimeType}] Cached request failed.');
+
           final ActionResponse response = action.getResponse()!;
-          await this._onSyncError(action, response.error, StackTrace.current);
+          await this._onSyncError(action, response.error!, StackTrace.current);
         }
       } catch (e, stackTrace) {
         await this._onSyncError(action, e, stackTrace);
@@ -72,6 +79,8 @@ class ActionsSynchronizer {
   }
 
   Future<void> _onSyncError(OfflinePossibleAction action, Object e, StackTrace stackTrace) async {
+    CacheableRequestConfig.logger.e('[${this.runtimeType}] Sync failed for ${action.actionName}.', e);
+
     final bool isOffline = await _offlineDetector.isOffline();
 
     if (isOffline) {

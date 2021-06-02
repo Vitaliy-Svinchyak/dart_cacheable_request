@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cacheable_request/src/config.dart';
 import 'package:cacheable_request/src/offline_detector/abstract_offline_detector.dart';
 import 'package:connectivity/connectivity.dart';
 
@@ -32,7 +33,7 @@ class SonarOfflineDetector implements AbstractOfflineDetector {
     return !await this.isOnline();
   }
 
-  Future<void> subscribeConnectionChanges(ConnectionChangeCallback callback) async {
+  void subscribeConnectionChanges(ConnectionChangeCallback callback) {
     this._listeners.add(callback);
 
     if (this._currentStatus != null) {
@@ -71,6 +72,7 @@ class SonarOfflineDetector implements AbstractOfflineDetector {
     }
 
     this._currentStatus = newStatus;
+    CacheableRequestConfig.logger.d('[${this.runtimeType}] Connection status has changed. New value: $newStatus');
 
     for (final ConnectionChangeCallback callback in this._listeners) {
       callback(newStatus);
@@ -78,6 +80,7 @@ class SonarOfflineDetector implements AbstractOfflineDetector {
   }
 
   Future<bool> _connectedToInternet() async {
+    return false;
     final ConnectivityResult connectivityResult = await Connectivity().checkConnectivity();
 
     return connectivityResult != ConnectivityResult.none;

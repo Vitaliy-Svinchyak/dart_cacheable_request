@@ -1,8 +1,13 @@
-import 'package:cacheable_request/src/action/serializable_request.dart';
+import 'package:cacheable_request/src/config.dart';
 
 import 'create_action.dart';
 
-void main() {
-  final savedRequest = SerializableRequest.fromJson({});
-  print(CreateAction.unserialize(savedRequest));
+void main() async {
+  CacheableRequestConfig.standard(() => Future.delayed(Duration(), () => true))
+    ..registerRequest(CreateAction, (request) => CreateAction.deserialize(request))
+    ..listen(debug: true);
+  final action = CreateAction('her');
+
+  final bool result = await action.perform();
+  print(result);
 }

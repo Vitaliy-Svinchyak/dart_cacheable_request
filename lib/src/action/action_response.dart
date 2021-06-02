@@ -1,25 +1,21 @@
 import 'dart:convert';
 
-import 'package:cacheable_request/src/error_message.dart';
+import 'package:cacheable_request/src/exception/connection_exception.dart';
 
 class ActionResponse {
-  String error;
-  dynamic errors;
+  Error? error;
 
-  bool get success => this.error == null && this.errors == null;
+  bool get success => this.error == null;
 
-  ActionResponse.fromJson(Map<String, dynamic> json)
-      : this.error = json['error'] as String,
-        this.errors = json['errors'];
+  ActionResponse.fromJson(Map<String, dynamic> json);
 
   Map<String, dynamic> toJson() => {
-        'error': this.error,
-        'errors': this.errors,
         'success': this.success,
+        'error': this.error.toString(),
       };
 
   @override
   String toString() => const JsonEncoder.withIndent('  ').convert(this);
 
-  bool get failedBecauseOfOffline => this.error == ErrorMessage.onlineOnly;
+  bool get failedBecauseOfConnection => this.error is ConnectionException;
 }

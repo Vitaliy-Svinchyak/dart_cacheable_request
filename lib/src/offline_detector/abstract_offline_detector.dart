@@ -5,5 +5,5 @@ abstract class AbstractOfflineDetector {
 
   Future<bool> isOffline();
 
-  Future<void> subscribeConnectionChanges(ConnectionChangeCallback callback);
+  void subscribeConnectionChanges(ConnectionChangeCallback callback);
 }

@@ -13,7 +13,7 @@ dependencies:
         sdk: flutter
     http: ^0.13.3
     connectivity: ^3.0.6
-    reflectable: ^3.0.2
+    logger: ^1.0.0
 
 dev_dependencies:
     flutter_test:
