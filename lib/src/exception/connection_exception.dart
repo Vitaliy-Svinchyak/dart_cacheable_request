@@ -1,3 +1,9 @@
 class ConnectionException implements Exception {
-  final String message = 'Some connection error.';
+  static final String Message = 'Some connection error.';
+  final String message = Message;
+
+  @override
+  String toString() {
+    return this.message;
+  }
 }

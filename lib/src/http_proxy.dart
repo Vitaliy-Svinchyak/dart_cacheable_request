@@ -51,7 +51,7 @@ class HttpProxy {
   }
 
   Future<T> _onError<T extends ActionResponse>(dynamic error, StackTrace stackTrace, ResponseBuilder<T> builder) async {
-    return builder({'error': ConnectionException()});
+    return builder({'error': ConnectionException().toString()});
   }
 
   T _parseResponse<T extends ActionResponse>(

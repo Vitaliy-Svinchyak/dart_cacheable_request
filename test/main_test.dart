@@ -8,6 +8,5 @@ void main() async {
     ..listen(debug: true);
   final action = CreateAction('her');
 
-  final bool result = await action.perform();
-  print(result);
+  await action.perform();
 }

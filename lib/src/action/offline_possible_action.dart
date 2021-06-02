@@ -102,7 +102,7 @@ abstract class OfflinePossibleAction<T extends ActionResponse> extends AbstractA
     final String? uniqueIdentifier = this.getUniqueIdentifier();
 
     if (uniqueIdentifier == null) {
-      CacheableRequestConfig.logger.d('[${this.runtimeType}] Saving a new non unique request. ($uniqueIdentifier)');
+      CacheableRequestConfig.logger.d('[${this.runtimeType}] Saving a new non unique request.');
 
       await this.save();
       return;
@@ -165,6 +165,9 @@ abstract class OfflinePossibleAction<T extends ActionResponse> extends AbstractA
       } else {
         CacheableRequestConfig.logger.d('[${this.runtimeType}] Retry attempts ended.');
       }
+    } else {
+      print(this.response.error);
+      CacheableRequestConfig.logger.d('[${this.runtimeType}] Fail was not because of connectivity.');
     }
 
     _lifecycleEventHandler.removeOnKillCallback(this._onKill);
