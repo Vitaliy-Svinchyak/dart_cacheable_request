@@ -80,7 +80,6 @@ class SonarOfflineDetector implements AbstractOfflineDetector {
   }
 
   Future<bool> _connectedToInternet() async {
-    return false;
     final ConnectivityResult connectivityResult = await Connectivity().checkConnectivity();
 
     return connectivityResult != ConnectivityResult.none;
